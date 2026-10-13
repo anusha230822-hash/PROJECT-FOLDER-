@@ -1,0 +1,185 @@
+{% extends 'classifier/base.html' %}
+
+{% block title %}Administrator Dashboard - Satellite Classification System{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-shield-lock text-warning me-2"></i>Administrator Control Center</h2>
+            <p class="text-muted mb-0">System-wide monitoring, user management, and dataset controls.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'dataset_manager' %}" class="btn btn-primary">
+                <i class="bi bi-images me-1"></i> Dataset Manager
+            </a>
+            <a href="/admin/" target="_blank" class="btn btn-outline-dark">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Django Admin Panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3 fs-3">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Registered Users</span>
+                        <h3 class="fw-bold mb-0">{{ total_users }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3 fs-3">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Uploaded Images</span>
+                        <h3 class="fw-bold mb-0">{{ total_images }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 me-3 fs-3">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Classifications</span>
+                        <h3 class="fw-bold mb-0">{{ total_results }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 me-3 fs-3">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Dataset Images</span>
+                        <h3 class="fw-bold mb-0">{{ dataset_stats.total_train }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dataset Summary & Training Status -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card card-sat p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-hdd-stack text-primary me-2"></i>Dataset & Model Status</h5>
+                <div class="mb-3">
+                    <span class="text-muted small">Classifier Status:</span>
+                    <span class="badge {% if model_ready %}bg-success{% else %}bg-warning text-dark{% endif %} fs-6 ms-2">
+                        {% if model_ready %}Random Forest Trained & Ready{% else %}Demo Mode (Untrained){% endif %}
+                    </span>
+                </div>
+
+                <div class="border rounded p-3 bg-light mb-3">
+                    <h6 class="fw-semibold small text-muted text-uppercase mb-2">Class Distribution</h6>
+                    <div class="row g-2 text-center small">
+                        {% for cls, count in dataset_stats.train.items %}
+                        <div class="col">
+                            <div class="p-2 bg-white rounded border">
+                                <div class="fw-bold text-dark">{{ count }}</div>
+                                <span class="text-muted">{{ cls }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="small text-muted">
+                    <i class="bi bi-info-circle me-1"></i> Admin can upload individual dataset samples via 
+                    <a href="{% url 'dataset_manager' %}" class="fw-bold text-decoration-none">Dataset Manager</a>, 
+                    or place images in bulk into <code>dataset/train/&lt;Class&gt;/</code>.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            {% if dist_chart_base64 %}
+            <div class="card card-sat p-3 h-100 text-center">
+                <h6 class="fw-bold mb-2 text-start"><i class="bi bi-bar-chart-fill text-success me-2"></i>Dataset Sample Chart</h6>
+                <img src="{{ dist_chart_base64 }}" alt="Dataset Distribution" class="img-fluid rounded">
+            </div>
+            {% else %}
+            <div class="card card-sat p-4 h-100 text-center text-muted d-flex align-items-center justify-content-center">
+                <div>
+                    <i class="bi bi-bar-chart fs-1 mb-2 d-block text-secondary"></i>
+                    <p class="mb-0">Add images to dataset folders to view distribution charts.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Uploads Table -->
+    <div class="card card-sat">
+        <div class="card-header card-header-sat d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-images text-primary me-2"></i>All Uploaded Satellite Images</h5>
+            <span class="badge bg-secondary">System Wide</span>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_uploads %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Thumbnail</th>
+                            <th>Image Name</th>
+                            <th>Uploaded By</th>
+                            <th>Status</th>
+                            <th>Date Uploaded</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for img in recent_uploads %}
+                        <tr>
+                            <td class="ps-3">
+                                <img src="{{ img.image.url }}" alt="thumb" class="rounded border" width="45" height="45" style="object-fit: cover;">
+                            </td>
+                            <td class="fw-semibold">{{ img.image_name }}</td>
+                            <td><span class="badge bg-light text-dark border">{{ img.user.username }}</span></td>
+                            <td>
+                                <span class="badge {% if img.processing_status == 'Completed' %}bg-success{% elif img.processing_status == 'Processing' %}bg-info{% else %}bg-secondary{% endif %}">
+                                    {{ img.processing_status }}
+                                </span>
+                            </td>
+                            <td class="small text-muted">{{ img.uploaded_at|date:"M d, Y H:i" }}</td>
+                            <td class="text-end pe-3">
+                                {% if img.result %}
+                                <a href="{% url 'result' img.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Result
+                                </a>
+                                {% else %}
+                                <a href="{% url 'result_demo' img.pk %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-sliders"></i> Features
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center p-4 text-muted">No images have been uploaded yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

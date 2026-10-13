@@ -1,0 +1,115 @@
+{% extends 'classifier/base.html' %}
+
+{% block title %}Dataset Manager - Satellite Image Classification System{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-folder-symlink text-primary me-2"></i>Dataset Records Manager</h2>
+            <p class="text-muted mb-0">Manage training and testing ground-truth satellite imagery records.</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Admin Dashboard
+        </a>
+    </div>
+
+    <!-- Upload New Dataset Record Form -->
+    <div class="card card-sat p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-cloud-plus text-success me-2"></i>Add Dataset Sample Image</h5>
+        <form method="post" enctype="multipart/form-data" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-5">
+                <label class="form-label fw-semibold">Select Satellite Image</label>
+                {{ form.image }}
+                {% if form.image.errors %}
+                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+                {% endif %}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold">Ground-Truth Class</label>
+                {{ form.class_name }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-semibold">Dataset Split</label>
+                {{ form.dataset_type }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-success w-100 fw-semibold">
+                    <i class="bi bi-upload me-1"></i> Add Record
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Dataset Records Table -->
+    <div class="card card-sat">
+        <div class="card-header card-header-sat d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-card-checklist text-primary me-2"></i>Database Dataset Records</h5>
+            <span class="badge bg-secondary">{{ page_obj.paginator.count }} Records</span>
+        </div>
+        <div class="card-body p-0">
+            {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Thumbnail</th>
+                            <th>Class Label</th>
+                            <th>Split Type</th>
+                            <th>Uploaded On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in page_obj %}
+                        <tr>
+                            <td class="ps-3">
+                                <img src="{{ r.image.url }}" alt="thumb" class="rounded border" width="50" height="50" style="object-fit: cover;">
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if r.class_name == 'Forest' %}badge-forest
+                                    {% elif r.class_name == 'Water' %}badge-water
+                                    {% elif r.class_name == 'Agriculture' %}badge-agriculture
+                                    {% elif r.class_name == 'Urban' %}badge-urban
+                                    {% else %}badge-barren{% endif %}">
+                                    {{ r.class_name }}
+                                </span>
+                            </td>
+                            <td><span class="badge bg-light text-dark border">{{ r.dataset_type }}</span></td>
+                            <td class="small text-muted">{{ r.uploaded_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="p-3 border-top d-flex justify-content-between align-items-center">
+                <span class="small text-muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo; Previous</a></li>
+                        {% endif %}
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next &raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center p-4 text-muted">No database dataset records added yet. Add samples using the form above.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'classifier/base.html' %}
+
+{% block title %}User Dashboard - Satellite Image Classification System{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header banner -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-speedometer2 text-primary me-2"></i>User Dashboard</h2>
+            <p class="text-muted mb-0">Welcome back, <strong>{{ user.username }}</strong>! Manage and inspect your satellite image classifications.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'upload' %}" class="btn btn-primary shadow-sm">
+                <i class="bi bi-cloud-arrow-up me-1"></i> Upload New Image
+            </a>
+            <a href="{% url 'ontology' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-diagram-3 me-1"></i> Explore Ontology
+            </a>
+        </div>
+    </div>
+
+    {% if not model_ready %}
+    <div class="alert alert-warning border-0 shadow-sm rounded-3 mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>Demo Mode:</strong> Machine learning model is not trained yet. You can upload images to run preprocessing and feature extraction. Run <code>python scripts/train_model.py</code> to train the Random Forest classifier.
+    </div>
+    {% endif %}
+
+    <!-- Metrics Cards Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3 fs-3">
+                        <i class="bi bi-images"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Total Uploads</span>
+                        <h3 class="fw-bold mb-0">{{ total_uploads }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3 fs-3">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Classifications Completed</span>
+                        <h3 class="fw-bold mb-0">{{ total_completed }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-sat p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 me-3 fs-3">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small fw-semibold">Ontology Mapping</span>
+                        <h3 class="fw-bold mb-0">Active</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Latest Classification Spotlight -->
+    {% if latest_result %}
+    <div class="card card-sat p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-stars text-warning me-2"></i>Latest Classification Spotlight</h5>
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                <img src="{{ latest_result.satellite_image.image.url }}" alt="{{ latest_result.satellite_image.image_name }}" class="img-fluid rounded shadow-sm" style="max-height: 140px; object-fit: cover;">
+            </div>
+            <div class="col-md-6">
+                <h5 class="fw-bold text-dark mb-1">{{ latest_result.satellite_image.image_name }}</h5>
+                <p class="text-muted small mb-2">Classified on {{ latest_result.created_at|date:"M d, Y H:i" }}</p>
+                <div class="d-flex gap-2 flex-wrap mb-2">
+                    <span class="badge bg-primary fs-6">{{ latest_result.predicted_class }}</span>
+                    <span class="badge bg-success fs-6">{{ latest_result.confidence_percentage }}% Confidence</span>
+                    <span class="badge bg-secondary fs-6">Parent: {{ latest_result.ontology_parent }}</span>
+                </div>
+                <small class="text-muted d-block">Taxonomy Path: <code>LandCover &gt; {{ latest_result.ontology_parent }} &gt; {{ latest_result.ontology_class }}</code></small>
+            </div>
+            <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                <a href="{% url 'result' latest_result.satellite_image.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-eye me-1"></i> View Full Result
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent History Table -->
+    <div class="card card-sat">
+        <div class="card-header card-header-sat d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2 text-primary"></i>Recent Classifications</h5>
+            <a href="{% url 'history' %}" class="text-decoration-none small fw-semibold">View All History &rarr;</a>
+        </div>
+        <div class="card-body p-0">
+            {% if recent_results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Thumbnail</th>
+                            <th>Image Name</th>
+                            <th>Predicted Class</th>
+                            <th>Confidence</th>
+                            <th>Ontology Concept</th>
+                            <th>Parent Concept</th>
+                            <th>Date</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_results %}
+                        <tr>
+                            <td class="ps-3">
+                                <img src="{{ r.satellite_image.image.url }}" alt="thumb" class="rounded" width="45" height="45" style="object-fit: cover;">
+                            </td>
+                            <td class="fw-semibold">{{ r.satellite_image.image_name }}</td>
+                            <td>
+                                <span class="badge 
+                                    {% if r.predicted_class == 'Forest' %}badge-forest
+                                    {% elif r.predicted_class == 'Water' %}badge-water
+                                    {% elif r.predicted_class == 'Agriculture' %}badge-agriculture
+                                    {% elif r.predicted_class == 'Urban' %}badge-urban
+                                    {% else %}badge-barren{% endif %}">
+                                    {{ r.predicted_class }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 18px; min-width: 90px;">
+                                    <div class="progress-bar bg-success" style="width: {{ r.confidence_percentage }}%;">
+                                        {{ r.confidence_percentage }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>{{ r.ontology_class }}</code></td>
+                            <td><span class="badge bg-light text-dark border">{{ r.ontology_parent }}</span></td>
+                            <td class="small text-muted">{{ r.created_at|date:"M d, H:i" }}</td>
+                            <td class="text-end pe-3">
+                                <a href="{% url 'result' r.satellite_image.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-box-arrow-up-right"></i> Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center p-5 text-muted">
+                <i class="bi bi-cloud-upload fs-1 text-secondary mb-2 d-block"></i>
+                <p class="mb-2">No satellite images classified yet.</p>
+                <a href="{% url 'upload' %}" class="btn btn-primary btn-sm">Upload your first satellite image</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

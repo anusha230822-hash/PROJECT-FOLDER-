@@ -1,0 +1,154 @@
+{% extends 'classifier/base.html' %}
+
+{% block title %}Ontology Explorer - Satellite Image Classification System{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-diagram-3 text-info me-2"></i>Satellite Land-Cover Ontology</h2>
+            <p class="text-muted mb-0">Semantic W3C OWL/RDF taxonomy powered by <strong>Owlready2</strong> and compatible with <strong>Stanford Protégé</strong>.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'search' %}" class="btn btn-primary">
+                <i class="bi bi-search me-1"></i> Search Concepts
+            </a>
+        </div>
+    </div>
+
+    <!-- Tree View & Architecture Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card card-sat p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-diagram-2 text-primary me-2"></i>Taxonomic Hierarchy Tree</h5>
+                    <span class="badge bg-secondary">{{ onto_classes_count }} OWL Classes</span>
+                </div>
+
+                <div class="bg-light p-3 rounded border font-monospace small" style="line-height: 1.8;">
+                    <div class="fw-bold text-dark"><i class="bi bi-folder2-open text-warning me-1"></i> LandCover (Root)</div>
+                    <div class="ps-3 border-start border-2 border-secondary ms-2 mt-1">
+                        <div class="fw-semibold text-success"><i class="bi bi-folder-fill me-1"></i> Vegetation</div>
+                        <div class="ps-3 border-start border-2 border-success ms-2">
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> Forest (ML Class 1)</div>
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> Agriculture (ML Class 2)</div>
+                        </div>
+
+                        <div class="fw-semibold text-primary mt-2"><i class="bi bi-folder-fill me-1"></i> WaterBody</div>
+                        <div class="ps-3 border-start border-2 border-primary ms-2">
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> River</div>
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> Lake</div>
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> Reservoir</div>
+                        </div>
+
+                        <div class="fw-semibold text-secondary mt-2"><i class="bi bi-folder-fill me-1"></i> BuiltUpArea</div>
+                        <div class="ps-3 border-start border-2 border-secondary ms-2">
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> UrbanArea (ML Class 4)</div>
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> ResidentialArea</div>
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> CommercialArea</div>
+                        </div>
+
+                        <div class="fw-semibold text-warning mt-2"><i class="bi bi-folder-fill me-1"></i> BarrenLand</div>
+                        <div class="ps-3 border-start border-2 border-warning ms-2">
+                            <div><i class="bi bi-tag-fill text-muted me-1"></i> BarrenLand (ML Class 5)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 small text-muted">
+                    <i class="bi bi-info-circle me-1"></i> The system uses Owlready2 to dynamically parse <code>ontology/satellite_ontology.owl</code> and resolve semantic relationships in real time.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card card-sat p-4 h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-mortarboard text-success me-2"></i>Ontology in Viva & Research</h5>
+                <p class="text-muted small">
+                    An ontology formally represents knowledge within a specific domain as a hierarchy of concepts and the relationships between them.
+                </p>
+                <div class="accordion accordion-flush" id="ontoAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                <strong>What is the purpose of the OWL file?</strong>
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#ontoAccordion">
+                            <div class="accordion-body small text-muted">
+                                The OWL (Web Ontology Language) file encodes domain knowledge in RDF/XML syntax. It enables interoperability with semantic reasoning software such as Protégé and graph triple-stores.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                <strong>How is it integrated into Django?</strong>
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#ontoAccordion">
+                            <div class="accordion-body small text-muted">
+                                We utilize <code>Owlready2</code>, a Python library that translates OWL ontologies directly into Python objects. Upon ML prediction, our <code>ontology_mapping.py</code> traverses parent classes up to the root concept.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                <strong>What is the relationship taxonomy?</strong>
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#ontoAccordion">
+                            <div class="accordion-body small text-muted">
+                                Primary relationship is <code>isA (rdfs:subClassOf)</code>. For example, <code>Forest &rarr; isA &rarr; Vegetation &rarr; isA &rarr; LandCover</code>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ontology Concepts Table -->
+    <div class="card card-sat mb-4">
+        <div class="card-header card-header-sat d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-list-columns text-primary me-2"></i>Ontology Semantic Concepts</h5>
+            <span class="badge bg-primary">Protégé OWL Schema</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3">Concept Name</th>
+                            <th>Parent Concept</th>
+                            <th>Relationship Type</th>
+                            <th>Semantic Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in db_concepts %}
+                        <tr>
+                            <td class="ps-3 fw-bold"><code>{{ c.concept_name }}</code></td>
+                            <td>
+                                {% if c.parent_concept %}
+                                <span class="badge bg-light text-dark border">{{ c.parent_concept }}</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Root (LandCover)</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-info text-dark">{{ c.relationship }}</span></td>
+                            <td class="small text-muted">{{ c.description|default:"Standard Earth observation land cover concept." }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center p-4 text-muted">Ontology concepts are loaded dynamically from <code>ontology/satellite_ontology.owl</code>.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

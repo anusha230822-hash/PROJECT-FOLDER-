@@ -1,0 +1,254 @@
+{% extends 'classifier/base.html' %}
+
+{% block title %}Classification Result - {{ sat_img.image_name }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header banner -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-file-earmark-check text-success me-2"></i>Classification & Ontology Result</h2>
+            <p class="text-muted mb-0">Image: <strong>{{ sat_img.image_name }}</strong> &bull; Uploaded on {{ sat_img.uploaded_at|date:"M d, Y H:i" }}</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'upload' %}" class="btn btn-outline-primary">
+                <i class="bi bi-cloud-arrow-up me-1"></i> Classify Another
+            </a>
+            <a href="{% url 'history' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-clock-history me-1"></i> View History
+            </a>
+            <button onclick="window.print();" class="btn btn-secondary">
+                <i class="bi bi-printer me-1"></i> Print / Save Report
+            </button>
+        </div>
+    </div>
+
+    {% if is_demo %}
+    <!-- Demo Mode Banner -->
+    <div class="alert alert-warning border-0 shadow-sm rounded-3 p-4 mb-4">
+        <h5 class="fw-bold"><i class="bi bi-info-circle-fill me-2"></i>DEMO MODE: Model is Not Trained Yet</h5>
+        <p class="mb-0">
+            {{ demo_message }}
+            <br>
+            However, image preprocessing and feature extraction were executed successfully! 
+            The deterministic 15-dimensional numerical feature vector extracted from this satellite image is displayed in the table below.
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="row g-4 mb-4">
+        <!-- Left: Uploaded Satellite Image -->
+        <div class="col-lg-5">
+            <div class="card card-sat p-3 h-100">
+                <h5 class="card-title fw-bold mb-3"><i class="bi bi-image text-primary me-2"></i>Uploaded Satellite Image</h5>
+                <div class="text-center bg-dark p-2 rounded mb-3">
+                    <img src="{{ sat_img.image.url }}" alt="{{ sat_img.image_name }}" class="img-fluid rounded shadow" style="max-height: 320px; object-fit: contain;">
+                </div>
+                <div class="small text-muted">
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span>File Name:</span>
+                        <strong class="text-dark">{{ sat_img.image_name }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between py-1 border-bottom">
+                        <span>Status:</span>
+                        <span class="badge {% if sat_img.processing_status == 'Completed' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ sat_img.processing_status }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span>Preprocessed Size:</span>
+                        <strong class="text-dark">128 &times; 128 (RGB)</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Classification & Semantic Ontology Card -->
+        <div class="col-lg-7">
+            {% if result %}
+            <div class="card card-sat p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-bullseye text-danger me-2"></i>Machine Learning Classification</h5>
+                    <span class="badge bg-success px-3 py-2 fs-6">Successfully Classified</span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded border">
+                            <span class="text-muted small fw-semibold">Predicted Land Class</span>
+                            <h3 class="fw-bold text-primary mt-1 mb-0">{{ result.predicted_class }}</h3>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="p-3 bg-light rounded border">
+                            <span class="text-muted small fw-semibold">Prediction Confidence</span>
+                            <h3 class="fw-bold text-success mt-1 mb-0">{{ result.confidence_percentage }}%</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Semantic Ontology Mapping Section -->
+                <div class="border-top pt-3">
+                    <h5 class="fw-bold text-dark mb-3">
+                        <i class="bi bi-diagram-3-fill text-info me-2"></i>Semantic Ontology Mapping
+                    </h5>
+
+                    <div class="bg-light p-3 rounded-3 mb-3 border">
+                        <div class="mb-2">
+                            <span class="text-muted small">Taxonomy Hierarchy Chain:</span>
+                            <div class="fs-6 fw-bold text-primary mt-1">
+                                <code>{{ onto_info.hierarchy_path }}</code>
+                            </div>
+                        </div>
+                        <hr class="my-2">
+                        <div class="row g-2 small">
+                            <div class="col-md-4">
+                                <span class="text-muted">Ontology Concept:</span>
+                                <span class="d-block fw-bold">{{ result.ontology_class }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted">Parent Concept:</span>
+                                <span class="d-block fw-bold text-secondary">{{ result.ontology_parent }}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <span class="text-muted">Root Concept:</span>
+                                <span class="d-block fw-bold text-dark">{{ result.ontology_root }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if onto_info.description %}
+                    <div class="p-3 rounded bg-info bg-opacity-10 border border-info border-opacity-25 small">
+                        <strong><i class="bi bi-info-circle me-1"></i>Ontology Semantic Description:</strong>
+                        <p class="mb-0 mt-1 text-muted">{{ onto_info.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Probability Chart (if available) -->
+            {% if chart_base64 %}
+            <div class="card card-sat p-3">
+                <h6 class="fw-bold mb-2"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Class Probability Distribution</h6>
+                <div class="text-center">
+                    <img src="{{ chart_base64 }}" alt="Probability Distribution" class="img-fluid rounded">
+                </div>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Demo placeholder info -->
+            <div class="card card-sat p-4">
+                <h5 class="fw-bold text-warning mb-2"><i class="bi bi-hourglass-split me-2"></i>Awaiting Model Training</h5>
+                <p class="text-muted">
+                    This image has undergone preprocessing and numerical feature extraction. 
+                    Once the training script is run on the dataset, the system will apply the trained 
+                    Random Forest classifier and map the output to the OWL ontology.
+                </p>
+                <div class="p-3 bg-light rounded border">
+                    <h6 class="fw-bold mb-1">To train the model:</h6>
+                    <code>python scripts/train_model.py</code>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Extracted Features Table -->
+    <div class="card card-sat mb-4">
+        <div class="card-header card-header-sat d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-table text-primary me-2"></i>Extracted Numerical Features (15 Dimensions)</h5>
+            <span class="badge bg-primary">Computer Vision Pipeline</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 25%;">Feature Category</th>
+                            <th style="width: 45%;">Feature Name</th>
+                            <th style="width: 30%;">Calculated Numerical Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Color Features -->
+                        <tr>
+                            <td rowspan="9" class="fw-bold align-middle bg-light text-primary">
+                                <i class="bi bi-palette me-1"></i> Color Features (RGB & HSV)
+                            </td>
+                            <td>Mean Red Channel</td>
+                            <td><code>{{ features.mean_r|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mean Green Channel</td>
+                            <td><code>{{ features.mean_g|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mean Blue Channel</td>
+                            <td><code>{{ features.mean_b|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Std Deviation (Red)</td>
+                            <td><code>{{ features.std_r|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Std Deviation (Green)</td>
+                            <td><code>{{ features.std_g|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Std Deviation (Blue)</td>
+                            <td><code>{{ features.std_b|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mean Hue (HSV Space)</td>
+                            <td><code>{{ features.mean_hue|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mean Saturation (HSV Space)</td>
+                            <td><code>{{ features.mean_saturation|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mean Value / Brightness (HSV Space)</td>
+                            <td><code>{{ features.mean_value|default:"-" }}</code></td>
+                        </tr>
+
+                        <!-- Texture Features -->
+                        <tr>
+                            <td rowspan="3" class="fw-bold align-middle bg-light text-success">
+                                <i class="bi bi-grid-3x3 me-1"></i> Texture Features
+                            </td>
+                            <td>Grayscale Mean Intensity</td>
+                            <td><code>{{ features.gray_mean|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Grayscale Standard Deviation</td>
+                            <td><code>{{ features.gray_std|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>RMS Contrast Approximation</td>
+                            <td><code>{{ features.contrast|default:"-" }}</code></td>
+                        </tr>
+
+                        <!-- Structural Features -->
+                        <tr>
+                            <td rowspan="3" class="fw-bold align-middle bg-light text-danger">
+                                <i class="bi bi-bounding-box-circles me-1"></i> Structural Features
+                            </td>
+                            <td>Canny Edge Density (Edges / Total Pixels)</td>
+                            <td><code>{{ features.edge_density|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Perceived Brightness (Luminance)</td>
+                            <td><code>{{ features.brightness|default:"-" }}</code></td>
+                        </tr>
+                        <tr>
+                            <td>Pixel Intensity Variance</td>
+                            <td><code>{{ features.variance|default:"-" }}</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

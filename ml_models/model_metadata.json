@@ -1,0 +1,30 @@
+{
+    "model_type": "PureRandomForestClassifier (NumPy)",
+    "n_estimators": 60,
+    "features": [
+        "mean_r",
+        "mean_g",
+        "mean_b",
+        "std_r",
+        "std_g",
+        "std_b",
+        "mean_hue",
+        "mean_saturation",
+        "mean_value",
+        "gray_mean",
+        "gray_std",
+        "contrast",
+        "edge_density",
+        "brightness",
+        "variance"
+    ],
+    "classes": [
+        "Agriculture",
+        "Barren",
+        "Forest",
+        "Urban",
+        "Water"
+    ],
+    "total_samples": 75,
+    "feature_count": 15
+}

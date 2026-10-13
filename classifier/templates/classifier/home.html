@@ -1,0 +1,182 @@
+{% extends 'classifier/base.html' %}
+{% load static %}
+
+{% block title %}Satellite Image Classification System Using Ontology - Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0 mb-5">
+    <!-- Hero Banner -->
+    <div class="hero-section">
+        <div class="container text-center">
+            <span class="badge bg-info text-dark px-3 py-2 rounded-pill mb-3 fw-bold">
+                <i class="bi bi-cpu me-1"></i> Machine Learning + Semantic Web Ontology
+            </span>
+            <h1 class="display-5 fw-bold mb-3">Satellite Image Classification System Using Ontology</h1>
+            <p class="lead hero-subtitle mb-4 col-md-8 mx-auto">
+                An intelligent system combining Computer Vision feature extraction, Random Forest machine learning, 
+                and OWL/Protégé knowledge ontologies for automated land-cover mapping.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'upload' %}" class="btn btn-warning btn-lg px-4 fw-bold shadow">
+                        <i class="bi bi-cloud-arrow-up me-2"></i> Start Classification
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-speedometer2 me-2"></i> My Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-4 fw-bold shadow">
+                        <i class="bi bi-rocket-takeoff me-2"></i> Get Started Free
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> User Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <!-- Status / Notice Banner -->
+    {% if not model_ready %}
+    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 mb-5">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle-fill fs-2 text-warning me-3"></i>
+            <div>
+                <h5 class="alert-heading fw-bold mb-1">Project Demo Mode Active</h5>
+                <p class="mb-0 text-muted">
+                    Model is not trained yet. You can still upload images to test image preprocessing and 15-dimensional 
+                    feature extraction. Once you add images to the dataset directory, execute <code>python scripts/train_model.py</code> 
+                    to train the Random Forest classifier!
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pipeline Architecture Section -->
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark">How the System Works</h2>
+        <p class="text-muted">The complete end-to-end data processing and semantic classification pipeline</p>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-primary"><i class="bi bi-satellite"></i></div>
+                <h6 class="fw-bold">1. Upload</h6>
+                <small class="text-muted">Satellite image ingested via web interface</small>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-success"><i class="bi bi-sliders"></i></div>
+                <h6 class="fw-bold">2. Preprocess</h6>
+                <small class="text-muted">Resizing (128x128), RGB, denoising & norm</small>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-info"><i class="bi bi-bar-chart-steps"></i></div>
+                <h6 class="fw-bold">3. Features</h6>
+                <small class="text-muted">Color (RGB/HSV), texture & Canny edges</small>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-warning"><i class="bi bi-diagram-2"></i></div>
+                <h6 class="fw-bold">4. Random Forest</h6>
+                <small class="text-muted">Ensemble trees predict land-cover class</small>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-danger"><i class="bi bi-diagram-3"></i></div>
+                <h6 class="fw-bold">5. Ontology</h6>
+                <small class="text-muted">Mapped to Protégé OWL taxonomy</small>
+            </div>
+        </div>
+        <div class="col-md-2 col-6">
+            <div class="step-card">
+                <div class="step-icon text-purple"><i class="bi bi-check2-circle"></i></div>
+                <h6 class="fw-bold">6. Knowledge Base</h6>
+                <small class="text-muted">Stored with confidence & visual analytics</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supported Land-Cover Classes -->
+    <div class="card card-sat p-4 mb-5">
+        <h4 class="fw-bold mb-3"><i class="bi bi-layers text-primary me-2"></i>Supported Land-Cover Classes</h4>
+        <div class="row g-3">
+            <div class="col-md">
+                <div class="p-3 rounded border text-center bg-light">
+                    <span class="badge badge-forest fs-6 mb-2">Forest</span>
+                    <p class="small text-muted mb-0">Dense tree canopy, natural woodlands, and evergreen forests.</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 rounded border text-center bg-light">
+                    <span class="badge badge-water fs-6 mb-2">Water</span>
+                    <p class="small text-muted mb-0">Lakes, rivers, reservoirs, and natural open aquatic bodies.</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 rounded border text-center bg-light">
+                    <span class="badge badge-agriculture fs-6 mb-2">Agriculture</span>
+                    <p class="small text-muted mb-0">Arable farmlands, cultivated croplands, and geometric harvest plots.</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 rounded border text-center bg-light">
+                    <span class="badge badge-urban fs-6 mb-2">Urban</span>
+                    <p class="small text-muted mb-0">Residential structures, high-density settlements, roads & buildings.</p>
+                </div>
+            </div>
+            <div class="col-md">
+                <div class="p-3 rounded border text-center bg-light">
+                    <span class="badge badge-barren fs-6 mb-2">Barren Land</span>
+                    <p class="small text-muted mb-0">Bare soil, rock surfaces, quarries, and non-vegetated dry terrain.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viva Explanation Cards -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card card-sat h-100 p-4">
+                <h5 class="fw-bold text-primary mb-3">
+                    <i class="bi bi-mortarboard me-2"></i>Why Use an Ontology with Machine Learning?
+                </h5>
+                <p class="text-muted">
+                    Standard ML algorithms only output isolated numbers or string labels (e.g. <code>Forest</code>). 
+                    By integrating an <strong>OWL/RDF Semantic Web Ontology</strong>:
+                </p>
+                <ul class="text-muted small">
+                    <li>The system understands that <code>Forest</code> is a type of <code>Vegetation</code>, which is a type of <code>LandCover</code>.</li>
+                    <li>Automated spatial reasoning connects related concepts (e.g., rivers and lakes belong to <code>WaterBody</code>).</li>
+                    <li>The application knowledge-base can be queried semantically using standard ontology traversal and SPARQL principles.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-sat h-100 p-4">
+                <h5 class="fw-bold text-success mb-3">
+                    <i class="bi bi-gear-wide-connected me-2"></i>Diploma Project Architecture
+                </h5>
+                <p class="text-muted">
+                    Designed for clarity, modularity, and high-scoring viva presentations:
+                </p>
+                <ul class="text-muted small">
+                    <li><strong>Image Processing:</strong> Deterministic 15-feature extraction using OpenCV and Pillow.</li>
+                    <li><strong>Classifier:</strong> Scikit-Learn Random Forest ensemble with full probability distribution.</li>
+                    <li><strong>Ontology Engine:</strong> Owlready2 parsing W3C standard Protégé-compatible OWL file.</li>
+                    <li><strong>Backend & Storage:</strong> Django web framework with relational SQLite database.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

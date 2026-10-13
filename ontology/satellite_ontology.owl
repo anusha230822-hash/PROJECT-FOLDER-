@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/ontologies/satellite_ontology#"
+     xml:base="http://www.semanticweb.org/ontologies/satellite_ontology"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+    
+    <owl:Ontology rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology">
+        <rdfs:label>Satellite Image Classification Ontology</rdfs:label>
+        <rdfs:comment>Semantic ontology describing Earth observation land cover categories, hierarchical taxonomies, and spatial land classifications.</rdfs:comment>
+    </owl:Ontology>
+
+    <!-- Top-level Root Class: LandCover -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#LandCover">
+        <rdfs:label>Land Cover</rdfs:label>
+        <rdfs:comment>The physical material at the surface of the Earth, including grass, asphalt, trees, bare ground, and water bodies.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclass Level 1: Vegetation -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#Vegetation">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#LandCover"/>
+        <rdfs:label>Vegetation</rdfs:label>
+        <rdfs:comment>All plant life including trees, shrubs, grasses, crops, and canopy cover characterized by high near-infrared spectral reflectance.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclass Level 1: WaterBody -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#WaterBody">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#LandCover"/>
+        <rdfs:label>Water Body</rdfs:label>
+        <rdfs:comment>Inland and coastal aquatic features characterized by high absorption in infrared bands and distinctive dark or cyan spectral signatures.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclass Level 1: BuiltUpArea -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#BuiltUpArea">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#LandCover"/>
+        <rdfs:label>Built-up Area</rdfs:label>
+        <rdfs:comment>Anthropogenic artificial structures, impervious surfaces, urban centers, and transportation infrastructure.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclass Level 1: BarrenLand -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#BarrenLand">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#LandCover"/>
+        <rdfs:label>Barren Land</rdfs:label>
+        <rdfs:comment>Non-vegetated dry soil, rocky terrain, sand, bare quarries, and desert with minimal moisture and plant life.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclasses of Vegetation -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#Forest">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#Vegetation"/>
+        <rdfs:label>Forest</rdfs:label>
+        <rdfs:comment>Dense canopy forest tracts, woodlands, tropical foliage, and evergreen/deciduous tree cover with deep green signatures.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#Agriculture">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#Vegetation"/>
+        <rdfs:label>Agriculture</rdfs:label>
+        <rdfs:comment>Cultivated croplands, arable farming plots, geometric harvest fields, and irrigated rural agricultural terrain.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclasses of WaterBody -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#River">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#WaterBody"/>
+        <rdfs:label>River</rdfs:label>
+        <rdfs:comment>Linear flowing natural water streams and river channels navigating through inland terrain.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#Lake">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#WaterBody"/>
+        <rdfs:label>Lake</rdfs:label>
+        <rdfs:comment>Static inland freshwater basins and natural water reservoirs.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#Reservoir">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#WaterBody"/>
+        <rdfs:label>Reservoir</rdfs:label>
+        <rdfs:comment>Man-made dam impoundments, artificial reservoirs, and water retention basins.</rdfs:comment>
+    </owl:Class>
+
+    <!-- Subclasses of BuiltUpArea -->
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#UrbanArea">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#BuiltUpArea"/>
+        <rdfs:label>Urban Area</rdfs:label>
+        <rdfs:comment>High-density human settlements, road networks, skyscrapers, and industrial complexes.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#ResidentialArea">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#BuiltUpArea"/>
+        <rdfs:label>Residential Area</rdfs:label>
+        <rdfs:comment>Low-to-medium density housing colonies, suburban buildings, and neighborhood roads.</rdfs:comment>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://www.semanticweb.org/ontologies/satellite_ontology#CommercialArea">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/ontologies/satellite_ontology#BuiltUpArea"/>
+        <rdfs:label>Commercial Area</rdfs:label>
+        <rdfs:comment>Business districts, warehouses, malls, industrial zones, and transportation terminals.</rdfs:comment>
+    </owl:Class>
+
+</rdf:RDF>
